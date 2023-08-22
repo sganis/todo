@@ -11,20 +11,17 @@
 	};
 </script>
 
+<!-- 
+use:enhance={() => {
+	working = true;
+	return async ({ update }) => {
+		await update();
+		working = false;
+	};
+}} -->
+
 <div class="todo" class:done={todo.done}>
-	<form
-		bind:this={form}
-		class="text"
-		method="post"
-		action="?/save"
-		use:enhance={() => {
-			working = true;
-			return async ({ update }) => {
-				await update();
-				working = false;
-			};
-		}}
-	>
+	<form bind:this={form} class="text" method="post" action="?/save">
 		<button formaction="?/toggle" class="toggle" aria-label="Toggle done" />
 		<input type="hidden" name="uid" value={todo.uid} />
 		<input
@@ -63,7 +60,7 @@
 	.todo input {
 		font-size: 16px;
 		flex: 1;
-		padding: 0.5em 2em 0.5em 0.8em;
+		padding: 0.5em;
 		border-radius: 3px;
 	}
 
@@ -79,7 +76,7 @@
 		display: flex;
 		align-items: center;
 		flex: 1;
-		gap: 0.1em;
+		gap: 0.3em;
 	}
 
 	.save {

@@ -27,18 +27,16 @@
 		<p class="error">{form.error}</p>
 	{/if}
 
+	<!-- use:enhance={() => {
+		working = true;
+		return async ({ update, result }) => {
+			await update();
+			working = false;
+		};
+	}} -->
+
 	<div class="new">
-		<form
-			action="?/create"
-			method="post"
-			use:enhance={() => {
-				working = true;
-				return async ({ update, result }) => {
-					await update();
-					working = false;
-				};
-			}}
-		>
+		<form action="?/create" method="post">
 			<input
 				type="text"
 				name="text"
