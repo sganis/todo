@@ -23,7 +23,7 @@ export const actions = {
 				created_at: new Date()
 			}
 		});
-		await new Promise((fulfil) => setTimeout(fulfil, 1000));
+		//await new Promise((fulfil) => setTimeout(fulfil, 1000));
 		return { message: 'todo created' };
 	},
 
