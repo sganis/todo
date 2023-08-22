@@ -1,6 +1,9 @@
 <script>
-	import TodoItem from '$lib/todo-item.svelte';
+	// @ts-nocheck
+
+	import Todo from './Todo.svelte';
 	const title = 'Todos';
+	export let data;
 </script>
 
 <svelte:head>
@@ -10,13 +13,19 @@
 <div class="todos">
 	<h1>Todo</h1>
 
-	<form class="new" action="/todos" method="post">
-		<input type="text" name="text" aria-label="Add a todo" placeholder="+ tap to add a todo" />
+	<form class="new" action="?/create" method="post">
+		<input
+			type="text"
+			name="text"
+			aria-label="Add a todo"
+			placeholder="Add a todo"
+			autocomplete="off"
+		/>
 	</form>
 
-	<TodoItem />
-	<TodoItem />
-	<TodoItem />
+	{#each data.todos as todo}
+		<Todo {todo} />
+	{/each}
 </div>
 
 <style>
