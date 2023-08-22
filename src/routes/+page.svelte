@@ -1,13 +1,14 @@
 <script>
 	// @ts-nocheck
+	import { navigating } from '$app/stores';
 	import { fly, slide } from 'svelte/transition';
-	import { enhance } from '$app/forms';
 	import Todo from './Todo.svelte';
 	const title = 'Todos';
 	export let data;
 	export let form;
 	let todoInput;
 	let working = false;
+	console.log($navigating);
 </script>
 
 <svelte:head>
@@ -23,17 +24,13 @@
 			&nbsp;
 		{/if}
 	</div>
-	{#if form?.error}
-		<p class="error">{form.error}</p>
-	{/if}
-
-	<!-- use:enhance={() => {
-		working = true;
-		return async ({ update, result }) => {
-			await update();
-			working = false;
-		};
-	}} -->
+	<div class="saving">
+		{#if $navigating}
+			loading...
+		{:else}
+			&nbsp;
+		{/if}
+	</div>
 
 	<div class="new">
 		<form>

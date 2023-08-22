@@ -32,12 +32,10 @@ export async function PATCH({ request, params }) {
 }
 
 export async function DELETE({ request, params }) {
-	console.log(params);
 	const todo = await prisma.todo.delete({
 		where: {
 			id: params.id
 		}
 	});
-	console.log(todo);
 	return json(todo, { status: 201 });
 }
