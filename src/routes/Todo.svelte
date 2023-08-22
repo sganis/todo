@@ -1,39 +1,49 @@
 <script>
-	import { enhance } from '$app/forms';
+	import { invalidate, invalidateAll } from '$app/navigation';
 	export let todo;
 	export let working = false;
-	let form;
-	const save = (e) => {
-		if (e.keyCode === 13) {
-			e.preventDefault();
-			form.submit();
-		}
+
+	const _save = async ({ id, text }) => {
+		working = true;
+		await fetch(`/${id}`, {
+			method: 'PUT',
+			body: JSON.stringify({ id, text }),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		working = false;
+	};
+
+	const _toggle = async ({ id }) => {
+		working = true;
+		await fetch(`/${id}`, {
+			method: 'PATCH',
+			body: JSON.stringify({ id }),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		working = false;
+		invalidateAll();
+	};
+
+	const _delete = async ({ id }) => {
+		working = true;
+		await fetch(`/${id}`, {
+			method: 'DELETE'
+		});
+		working = false;
+		invalidateAll();
 	};
 </script>
 
-<!-- 
-use:enhance={() => {
-	working = true;
-	return async ({ update }) => {
-		await update();
-		working = false;
-	};
-}} -->
-
 <div class="todo" class:done={todo.done}>
-	<form bind:this={form} class="text" method="post" action="?/save">
-		<button formaction="?/toggle" class="toggle" aria-label="Toggle done" />
-		<input type="hidden" name="uid" value={todo.uid} />
-		<input
-			type="text"
-			name="text"
-			bind:value={todo.text}
-			disabled={working}
-			autocomplete="off"
-			on:keydown={save}
-		/>
-		<button formaction="?/save" class="save" aria-label="Save todo" />
-		<button formaction="?/delete" class="delete" aria-label="Delete todo" />
+	<form class="text">
+		<button on:click={() => _toggle(todo)} class="toggle" aria-label="Toggle done" />
+		<input type="text" name="text" bind:value={todo.text} disabled={working} autocomplete="off" />
+		<button on:click={() => _save(todo)} class="save" aria-label="Save todo" />
+		<button on:click={() => _delete(todo)} class="delete" aria-label="Delete todo" />
 	</form>
 </div>
 

@@ -36,7 +36,7 @@
 	}} -->
 
 	<div class="new">
-		<form action="?/create" method="post">
+		<form>
 			<input
 				type="text"
 				name="text"
@@ -46,10 +46,29 @@
 				aria-label="Add a todo"
 				placeholder="Add a todo"
 				autocomplete="off"
+				on:keydown={async (e) => {
+					if (e.key === 'Enter') {
+						e.preventDefault();
+						working = true;
+						const input = e.currentTarget;
+						const text = input.value;
+						const response = await fetch('/', {
+							method: 'POST',
+							body: JSON.stringify({ text }),
+							headers: {
+								'Content-Type': 'application/json'
+							}
+						});
+						const todo_db = await response.json();
+						data.todos = [todo_db, ...data.todos];
+						input.value = '';
+						working = false;
+					}
+				}}
 			/>
 		</form>
 	</div>
-	{#each data.todos as todo (todo.uid)}
+	{#each data.todos as todo (todo.id)}
 		<div in:fly={{ y: 20 }} out:slide>
 			<Todo {todo} bind:working />
 		</div>
