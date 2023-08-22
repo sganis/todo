@@ -1,9 +1,13 @@
 <script>
 	// @ts-nocheck
-
+	import { fly, slide } from 'svelte/transition';
+	import { enhance } from '$app/forms';
 	import Todo from './Todo.svelte';
 	const title = 'Todos';
 	export let data;
+	export let form;
+	let todoInput;
+	let working = false;
 </script>
 
 <svelte:head>
@@ -12,19 +16,45 @@
 
 <div class="todos">
 	<h1>Todo</h1>
+	<div class="saving">
+		{#if working}
+			saving...
+		{:else}
+			&nbsp;
+		{/if}
+	</div>
+	{#if form?.error}
+		<p class="error">{form.error}</p>
+	{/if}
 
-	<form class="new" action="?/create" method="post">
-		<input
-			type="text"
-			name="text"
-			aria-label="Add a todo"
-			placeholder="Add a todo"
-			autocomplete="off"
-		/>
-	</form>
-
-	{#each data.todos as todo}
-		<Todo {todo} />
+	<div class="new">
+		<form
+			action="?/create"
+			method="post"
+			use:enhance={() => {
+				working = true;
+				return async ({ update, result }) => {
+					await update();
+					working = false;
+				};
+			}}
+		>
+			<input
+				type="text"
+				name="text"
+				value={form?.text ?? ''}
+				disabled={working}
+				bind:this={todoInput}
+				aria-label="Add a todo"
+				placeholder="Add a todo"
+				autocomplete="off"
+			/>
+		</form>
+	</div>
+	{#each data.todos as todo (todo.uid)}
+		<div in:fly={{ y: 20 }} out:slide>
+			<Todo {todo} bind:working />
+		</div>
 	{/each}
 </div>
 
@@ -37,16 +67,21 @@
 
 	.new {
 		margin: 0 0 0.5rem 0;
+		padding: 0.5rem;
+		background-color: white;
+		border-radius: 8px;
+		filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.1));
+		transform: translate(-1px, -1px);
+		transition: filter 0.2s, transform 0.2s;
 	}
 
 	.new input {
-		font-size: 28px;
+		font-size: 20px;
 		width: 100%;
-		padding: 0.5em 1em 0.3em 1em;
+		padding: 0.5em 1em 0.3em 0.5em;
 		box-sizing: border-box;
 		background: rgba(255, 255, 255, 0.05);
 		border-radius: 8px;
-		text-align: center;
 	}
 
 	.todos :global(input) {
@@ -57,5 +92,10 @@
 		box-shadow: inset 1px 1px 6px rgba(0, 0, 0, 0.1);
 		border: 1px solid #ff3e00 !important;
 		outline: none;
+	}
+	.saving {
+		text-align: right;
+		margin: 1em;
+		opacity: 0.5;
 	}
 </style>

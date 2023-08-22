@@ -1,13 +1,40 @@
 <script>
 	import { enhance } from '$app/forms';
 	export let todo;
+	export let working = false;
+	let form;
+	const save = (e) => {
+		if (e.keyCode === 13) {
+			e.preventDefault();
+			form.submit();
+		}
+	};
 </script>
 
 <div class="todo" class:done={todo.done}>
-	<form class="text" method="post" action="?/save" use:enhance>
+	<form
+		bind:this={form}
+		class="text"
+		method="post"
+		action="?/save"
+		use:enhance={() => {
+			working = true;
+			return async ({ update }) => {
+				await update();
+				working = false;
+			};
+		}}
+	>
 		<button formaction="?/toggle" class="toggle" aria-label="Toggle done" />
 		<input type="hidden" name="uid" value={todo.uid} />
-		<input type="text" name="text" value={todo.text} required />
+		<input
+			type="text"
+			name="text"
+			bind:value={todo.text}
+			disabled={working}
+			autocomplete="off"
+			on:keydown={save}
+		/>
 		<button formaction="?/save" class="save" aria-label="Save todo" />
 		<button formaction="?/delete" class="delete" aria-label="Delete todo" />
 	</form>
@@ -34,6 +61,7 @@
 	}
 
 	.todo input {
+		font-size: 16px;
 		flex: 1;
 		padding: 0.5em 2em 0.5em 0.8em;
 		border-radius: 3px;
