@@ -10,9 +10,138 @@ generator client {
   binaryTargets = ["native"]
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+  output = "erd.svg"
+  ignoreEnums = true
+  includeRelationFromFields = true
+}
+
 model Todo {
+  @@map("todo")
   id String @id @default(cuid())
   created_at DateTime
   text String
   done Boolean
 }
+
+model Guest {
+  @@map("guests")
+  id          Int    @id @default(autoincrement())
+  firstname   String
+  lastname    String?
+  email       String
+  tel         String
+  city        String?
+  country     String @default("AR")
+  dob         DateTime?
+  doc_type    String?
+  doc_nr      String?
+  status      String?
+  remarks     String?
+  bookings    BookingGuest[]
+  credit_cards CreditCard[] 
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model CreditCard {
+  @@map("credit_cards")
+  id          Int    @id @default(autoincrement())
+  type        String
+  number      String
+  expiration  String
+  cvv         String
+  guest       Guest @relation(fields: [guest_id], references: [id])
+  guest_id    Int
+}
+
+model Room {
+  @@map("rooms")
+  id          Int    @id @default(autoincrement())
+  number      String
+  room_type   RoomType @relation(fields: [room_type_id], references: [id])
+  room_type_id Int 
+  bookings    Booking[] 
+}
+
+model RoomType {
+  @@map("room_types")
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  num_guests  Int  
+  rooms       Room[]
+  availability Availability[]
+}
+
+model Booking {
+  @@map("bookings")
+  id          Int     @id @default(autoincrement())
+  room        Room    @relation(fields: [room_id], references: [id])
+  room_id     Int
+  arrival     DateTime
+  departure   DateTime
+  status      BookingStatus   @default(CREATED)
+  breakfast   Boolean         @default(true)
+  source      Source          @default(WALKIN)
+  reason      Reason          @default(TOURISM)
+  adults      Int            
+  children    Int             @default(0)
+  babies      Int             @default(0)
+  guests      BookingGuest[] 
+  price_usd   Decimal?
+  price_ars   Decimal?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model BookingGuest {
+  @@map("booking_guests")
+  id          Int @id @default(autoincrement())
+  guest       Guest @relation(fields: [guest_id], references: [id])
+  guest_id    Int
+  booking     Booking @relation(fields: [booking_id], references: [id])
+  booking_id  Int
+  main        Boolean @default(true)
+}
+
+model Availability {
+  @@map("availability")
+  id          Int     @id @default(autoincrement())
+  date        DateTime
+  price_usd   Decimal?
+  price_ars   Decimal?
+  room_type   RoomType @relation(fields: [room_type_id], references: [id])
+  room_type_id Int 
+  num_available Int
+  book_cutoff Int     @default(0)
+  close       Boolean @default(false)
+}
+
+model Settings {
+  @@map("settings")
+  id              Int     @id @default(autoincrement())
+  breakfast_price_ars Decimal?
+  breakfast_price_usd Decimal?
+}
+
+enum Source {
+  @@map("source")
+  WALKIN
+  BOOKING
+  EXPEDIA
+  AIRBNB
+  ENGINE
+  AGENT
+}
+enum BookingStatus {
+  @@map("booking_status")
+  CREATED
+  OK
+}
+enum Reason {
+  @@map("reason")
+  TOURISM
+  WORK
+}
+
